@@ -42,11 +42,11 @@ public class SequenceIterator {
             if (cycle == inputNumber){
                 if (input.hasNext()) {
                     this.currentElements.set(inputNumber, input.next());
-                    break;
                 } else {
                     this.currentElements.set(inputNumber, Integer.MAX_VALUE);
                     inputsCompleted++;
                 }
+                break;
             }
             cycle++;
         }
