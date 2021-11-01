@@ -1,54 +1,46 @@
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 
-public class SequenceIterator {
-    private final Collection<Iterator<Integer>> inputs;
-    private final ArrayList<Integer> currentElements;
-    private int inputsCompleted;
+public class SequenceIterator<T extends Comparable> {
+    private final Collection<Iterator<T>> inputs;
+    private final Map<Iterator<T>, T> currentElements;
 
-    public SequenceIterator(Collection<Iterator<Integer>> inputs){
+    public SequenceIterator(Collection<Iterator<T>> inputs){
         this.inputs = inputs;
-        this.currentElements = new ArrayList<>();
-        this.inputsCompleted = 0;
+        this.currentElements = new HashMap<>();
         initializeCurrentElements();
     }
     public boolean hasNext() {
-        return inputsCompleted <= inputs.size() - 1;
+        return !currentElements.isEmpty();
     }
-    public Integer next() {
-        Integer minimum = Integer.MAX_VALUE;
-        int inputNumber = 0;
-        for (int i = 0; i< currentElements.size(); i++) {
-            if (currentElements.get(i) < minimum){
-                minimum = currentElements.get(i);
-                inputNumber = i;
+    public T next() {
+        T minimum = null;
+        Iterator<T> input = null;
+        for (Map.Entry<Iterator<T>, T> currentElement : currentElements.entrySet()) {
+            minimum = currentElement.getValue();
+            input = currentElement.getKey();
+            break;
+        }
+
+        for (Map.Entry<Iterator<T>, T> currentElement : currentElements.entrySet()) {
+            if (currentElement.getValue().compareTo(minimum) < 0) {
+                minimum = currentElement.getValue();
+                input = currentElement.getKey();
             }
         }
-        moveCursor(inputNumber);
+        moveCursor(input);
         return minimum;
     }
     private void initializeCurrentElements(){
-        int i = 0;
-        for (Iterator<Integer> input : inputs){
-            this.currentElements.add(i,input.next());
-            i++;
+        for (Iterator<T> input : inputs) {
+            currentElements.put(input,input.next());
         }
     }
-    private void moveCursor(int inputNumber){
-        int cycle = 0;
-        for (Iterator<Integer> input : inputs){
-            if (cycle == inputNumber){
-                if (input.hasNext()) {
-                    this.currentElements.set(inputNumber, input.next());
-                } else {
-                    this.currentElements.set(inputNumber, Integer.MAX_VALUE);
-                    inputsCompleted++;
-                }
-                break;
-            }
-            cycle++;
+    private void moveCursor(Iterator<T> input){
+        if (input.hasNext()) {
+            currentElements.put(input,input.next());
+        } else {
+            currentElements.remove(input);
         }
     }
 }
